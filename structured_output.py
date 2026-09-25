@@ -104,7 +104,7 @@ with st.form("eingabe_form"):
     eingabe = st.text_input(aufgabe["label"], value=aufgabe["beispiel"])
     anzahl = None
     if modus == "Testadressen":                                  # nur hier ist die Anzahl wählbar
-        anzahl = st.number_input("Anzahl Adressen", min_value=1, max_value=100, value=5, step=1)
+        anzahl = st.number_input("Anzahl Adressen", min_value=1, max_value=20, value=5, step=1)
     abgeschickt = st.form_submit_button("Generieren", type="primary")
 
 # --- Chain bauen und aufrufen: prompt | model | parser ---
