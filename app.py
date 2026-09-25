@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Einstiegspunkt der Multipage-App: hier wird nur festgelegt, welche Seiten es gibt.
-# Starten mit:  uv run streamlit run streamlit/app.py
+# Starten mit:  uv run streamlit run app.py
 
 st.set_page_config(page_title="meine erste streamlit app", layout="wide")
 
@@ -10,6 +10,11 @@ dashboard = st.Page("my_dashboard.py", title="Dashboard", icon="📊", default=T
 
 # Weitere Seiten einfach anlegen und in die Liste aufnehmen, z. B.:
 documentation = st.Page("documentation.py", title="Documentation", icon="📁")
+structured = st.Page("structured_output.py", title="Structured Output", icon="🧩")
 
-pg = st.navigation([dashboard,documentation])          # bei nur einer Seite blendet Streamlit das Menü aus
+# Mit einem dict statt einer Liste werden die Seiten im Menü gruppiert
+pg = st.navigation({
+    "Grundlagen": [dashboard, documentation],
+    "KI": [structured],
+})
 pg.run()                                 # führt die gerade ausgewählte Seite aus

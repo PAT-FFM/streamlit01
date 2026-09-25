@@ -2,3 +2,6 @@ altair==6.2.2
 numpy==2.5.1
 pandas==3.0.5
 streamlit==1.60.0
+langchain-core==1.6.4
+langchain-openrouter==0.2.7
+python-dotenv==1.2.2
