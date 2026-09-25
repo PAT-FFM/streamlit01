@@ -75,14 +75,14 @@ AUFGABEN = {
     "Testadressen": {
         "schema": DummyAddressData,
         "system": """
-            Du generierst 5 Testdaten für eine Adressverwaltung.
+            Du generierst genau {anzahl} Testdaten für eine Adressverwaltung.
             Halte dich dabei exakt an die Formatanweisungen {format_instructions}.
             Der Nutzer gibt dir ein Land vor und du erzeugst sinnvolle Daten hierfür.
             zipcode passend zu city und street.
         """,
         "user": "Land: {eingabe}",
-        "label": "Land",
-        "beispiel": "Mauritius",
+        "label": "Land",        
+        "beispiel": "Deutschland",
     },
 }
 
@@ -102,6 +102,9 @@ aufgabe = AUFGABEN[modus]
 # so entsteht nicht bei jedem Tastendruck ein (kostenpflichtiger) API-Aufruf.
 with st.form("eingabe_form"):
     eingabe = st.text_input(aufgabe["label"], value=aufgabe["beispiel"])
+    anzahl = None
+    if modus == "Testadressen":                                  # nur hier ist die Anzahl wählbar
+        anzahl = st.number_input("Anzahl Adressen", min_value=1, max_value=100, value=5, step=1)
     abgeschickt = st.form_submit_button("Generieren", type="primary")
 
 # --- Chain bauen und aufrufen: prompt | model | parser ---
@@ -116,7 +119,9 @@ if abgeschickt:
 
     with st.spinner(f"{model_name} denkt nach …"):
         try:
-            st.session_state["ergebnis"] = {"modus": modus, "daten": chain.invoke({"eingabe": eingabe})}
+            # {anzahl} wird im Filme-Prompt nicht verwendet – überzählige Variablen ignoriert das Template
+            daten = chain.invoke({"eingabe": eingabe, "anzahl": anzahl})
+            st.session_state["ergebnis"] = {"modus": modus, "daten": daten, "anzahl": anzahl}
         except Exception as e:
             st.session_state.pop("ergebnis", None)
             st.error(f"Fehler beim Aufruf: {e}")
@@ -126,6 +131,9 @@ ergebnis = st.session_state.get("ergebnis")
 if ergebnis and ergebnis["modus"] == modus:
     eintraege = ergebnis["daten"].get("entries", [])
     st.subheader(f"{len(eintraege)} Einträge")
+    # LLMs verzählen sich gern – deshalb die gelieferte Anzahl prüfen
+    if ergebnis["anzahl"] and len(eintraege) != ergebnis["anzahl"]:
+        st.warning(f"Angefordert waren {ergebnis['anzahl']}, das Modell hat {len(eintraege)} geliefert.")
     st.dataframe(pd.DataFrame(eintraege), hide_index=True)
     with st.expander("Rohantwort (JSON)"):
         st.json(ergebnis["daten"])
